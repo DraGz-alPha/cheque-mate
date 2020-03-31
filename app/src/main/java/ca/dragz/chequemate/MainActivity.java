@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     Toolbar toolbar;
 
+    private DatabaseReference mDatabase;
+
     private String jobName = "Nyhof Farms";
     private double hourlyWage = 18.50;
     private Integer year;
@@ -52,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvStartTime;
     private TextView tvEndTime;
     private TextView tvShiftDetails;
-
-    private DatabaseReference mDatabase;
 
     private Shift shift;
 
@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.btnAddShift:
                     if (shiftIsValid()) {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
+                        fireShift();
                         tvShiftDetails.setText(shift.toString());
                         Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_LONG).show();
                     } else {
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                         MainActivity.this.year = year;
-                        MainActivity.this.month = month;
+                        MainActivity.this.month = month + 1;
                         MainActivity.this.dayOfMonth = day;
                         MainActivity.this.dateIsSet = true;
                         tvDate.setText((month + 1) + "/" + day + "/" + year);
@@ -190,5 +191,21 @@ public class MainActivity extends AppCompatActivity {
             isValid = true;
         }
         return isValid;
+    }
+
+    public void fireShift() {
+        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference("shift_entries");
+        String key = shiftEntries.push().getKey();
+        if (key != null) {
+            mDatabase.child("shift_entries").child(key).child("Job Name").setValue(jobName);
+            mDatabase.child("shift_entries").child(key).child("Hourly Wage").setValue(hourlyWage);
+            mDatabase.child("shift_entries").child(key).child("Year").setValue(year);
+            mDatabase.child("shift_entries").child(key).child("Month").setValue(month);
+            mDatabase.child("shift_entries").child(key).child("Day of Month").setValue(dayOfMonth);
+            mDatabase.child("shift_entries").child(key).child("Start Hour").setValue(startHour);
+            mDatabase.child("shift_entries").child(key).child("Start Minute").setValue(startMinute);
+            mDatabase.child("shift_entries").child(key).child("End Hour").setValue(endHour);
+            mDatabase.child("shift_entries").child(key).child("End Minute").setValue(endMinute);
+        }
     }
 }
