@@ -3,6 +3,7 @@ package ca.dragz.chequemate;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -18,26 +19,32 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     Toolbar toolbar;
 
     private DatabaseReference mDatabase;
+    private RecyclerView rvShifts;
 
     private String jobName = "Nyhof Farms";
     private double hourlyWage = 18.50;
-    private Integer year;
-    private Integer month;
-    private Integer dayOfMonth;
-    private Integer startHour;
-    private Integer startMinute;
-    private Integer endHour;
-    private Integer endMinute;
+    private int year;
+    private int month;
+    private int dayOfMonth;
+    private int startHour;
+    private int startMinute;
+    private int endHour;
+    private int endMinute;
 
     private boolean jobIsSet = true;
     private boolean wageIsSet = true;
@@ -66,6 +73,29 @@ public class MainActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         EventHandler eventHandler = new EventHandler();
+
+        rvShifts = findViewById(R.id.rvShifts);
+        new FirebaseDatabaseHelper().readShifts(new FirebaseDatabaseHelper.DataStatus() {
+            @Override
+            public void DataIsLoaded(List<Shift> shifts, List<String> keys) {
+                new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys);
+            }
+
+            @Override
+            public void DataIsInserted() {
+
+            }
+
+            @Override
+            public void DataIsUpdated() {
+
+            }
+
+            @Override
+            public void DataIsDeleted() {
+
+            }
+        });
 
         tvDate = findViewById(R.id.tvDate);
         tvStartTime = findViewById(R.id.tvStartTime);
@@ -194,18 +224,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fireShift() {
-        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference("shift_entries");
+        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference("shifts");
         String key = shiftEntries.push().getKey();
         if (key != null) {
-            mDatabase.child("shift_entries").child(key).child("Job Name").setValue(jobName);
-            mDatabase.child("shift_entries").child(key).child("Hourly Wage").setValue(hourlyWage);
-            mDatabase.child("shift_entries").child(key).child("Year").setValue(year);
-            mDatabase.child("shift_entries").child(key).child("Month").setValue(month);
-            mDatabase.child("shift_entries").child(key).child("Day of Month").setValue(dayOfMonth);
-            mDatabase.child("shift_entries").child(key).child("Start Hour").setValue(startHour);
-            mDatabase.child("shift_entries").child(key).child("Start Minute").setValue(startMinute);
-            mDatabase.child("shift_entries").child(key).child("End Hour").setValue(endHour);
-            mDatabase.child("shift_entries").child(key).child("End Minute").setValue(endMinute);
+            mDatabase.child("shifts").child(key).child("jobName").setValue(jobName);
+            mDatabase.child("shifts").child(key).child("hourlyWage").setValue(hourlyWage);
+            mDatabase.child("shifts").child(key).child("year").setValue(year);
+            mDatabase.child("shifts").child(key).child("month").setValue(month);
+            mDatabase.child("shifts").child(key).child("dayOfMonth").setValue(dayOfMonth);
+            mDatabase.child("shifts").child(key).child("startHour").setValue(startHour);
+            mDatabase.child("shifts").child(key).child("startMinute").setValue(startMinute);
+            mDatabase.child("shifts").child(key).child("endHour").setValue(endHour);
+            mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
         }
     }
 }
