@@ -64,11 +64,28 @@ public class Shift {
         return endMinute;
     }
 
-    public String getTimeString(boolean isStartTime) {
-        if (isStartTime) {
-            return startHour + ":" + startMinute;
+    public String getTimeString(boolean isStartTime, boolean isAmPm) {
+        int hour = startHour;
+        int minute = startMinute;
+        String symbol = "AM";
+        String returnVal = "";
+
+        if (!isStartTime) {
+            hour = endHour;
+            minute = endMinute;
+        }
+        if (isAmPm) {
+            if (hour == 0) {
+                hour = 12;
+            } else if (hour == 12) {
+                symbol = "PM";
+            } else if (hour > 12) {
+                hour = hour - 12;
+                symbol = "PM";
+            }
+            return (minute < 10) ? String.format("%d:0%d %s", hour, minute , symbol) : String.format("%d:%d %s", hour, minute , symbol);
         } else {
-            return endHour + ":" + endMinute;
+            return String.format("%d:%d", hour, minute);
         }
     }
 

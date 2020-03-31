@@ -42,8 +42,8 @@ public class RecyclerView_Config {
         public void bind(Shift shift, String key) {
             txtJobName.setText(shift.getJobName());
             txtHourlyWage.setText("Hourly: $" + Double.toString(shift.getHourlyWage()));
-            txtStartTime.setText("Start Time: " + shift.getTimeString(true));
-            txtEndTime.setText("End Time: " + shift.getTimeString(false));
+            txtStartTime.setText("Start Time: " + shift.getTimeString(true, true));
+            txtEndTime.setText("End Time: " + shift.getTimeString(false, true));
             this.key = key;
         }
     }
