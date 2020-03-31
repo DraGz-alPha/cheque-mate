@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1007269636428",
+    "firebase_url": "https://cheque-mate-ed315.firebaseio.com",
+    "project_id": "cheque-mate-ed315",
+    "storage_bucket": "cheque-mate-ed315.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007269636428:android:1d92924402acff984287e9",
+        "android_client_info": {
+          "package_name": "ca.dragz.chequemate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007269636428-bppb7kmc1hmh7fkr4q4v4c9gt3rq7h7e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ca.dragz.chequemate",
+            "certificate_hash": "eb7a3ebcfc69296ec52acc92e7cab5a078c70651"
+          }
+        },
+        {
+          "client_id": "1007269636428-984kvqo3gfje2c9c990adqf459fgh603.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo2C2ZFiUeT3yHNPeIcQKLghR_Rq7Gtjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007269636428-984kvqo3gfje2c9c990adqf459fgh603.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
