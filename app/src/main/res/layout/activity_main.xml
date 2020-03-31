@@ -88,4 +88,24 @@
         app:layout_constraintTop_toBottomOf="@+id/btnEndTime"
         app:layout_constraintVertical_bias="0.0" />
 
+    <Button
+        android:id="@+id/btnAddShift"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Add Shift"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvStartTime" />
+
+    <TextView
+        android:id="@+id/tvShiftDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="52dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddShift" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -26,15 +27,35 @@ public class MainActivity extends AppCompatActivity {
 
     Toolbar toolbar;
 
-    Button btnSetDate;
-    Button btnStartTime;
-    Button btnEndTime;
+    private String jobName = "Nyhof Farms";
+    private double hourlyWage = 18.50;
+    private Integer year;
+    private Integer month;
+    private Integer dayOfMonth;
+    private Integer startHour;
+    private Integer startMinute;
+    private Integer endHour;
+    private Integer endMinute;
 
-    TextView tvDate;
-    TextView tvStartTime;
-    TextView tvEndTime;
+    private boolean jobIsSet = true;
+    private boolean wageIsSet = true;
+    private boolean dateIsSet = false;
+    private boolean startTimeIsSet = false;
+    private boolean endTimeIsSet = false;
+
+    private Button btnSetDate;
+    private Button btnStartTime;
+    private Button btnEndTime;
+    private Button btnAddShift;
+
+    private TextView tvDate;
+    private TextView tvStartTime;
+    private TextView tvEndTime;
+    private TextView tvShiftDetails;
 
     private DatabaseReference mDatabase;
+
+    private Shift shift;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +70,16 @@ public class MainActivity extends AppCompatActivity {
         tvDate = findViewById(R.id.tvDate);
         tvStartTime = findViewById(R.id.tvStartTime);
         tvEndTime = findViewById(R.id.tvEndTime);
+        tvShiftDetails = findViewById(R.id.tvShiftDetails);
 
         btnSetDate = findViewById(R.id.btnSetDate);
         btnStartTime = findViewById(R.id.btnStartTime);
         btnEndTime = findViewById(R.id.btnEndTime);
-
+        btnAddShift = findViewById(R.id.btnAddShift);
         btnSetDate.setOnClickListener(eventHandler);
         btnStartTime.setOnClickListener(eventHandler);
         btnEndTime.setOnClickListener(eventHandler);
+        btnAddShift.setOnClickListener(eventHandler);
     }
 
     //to inflate the xml menu file
@@ -91,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     public class EventHandler implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            switch(v.getId()) {
+            switch (v.getId()) {
                 case R.id.btnSetDate:
 //                    mDatabase.child("shift_entries").child("shift").setValue("Hello, Universe!");
                     ShowDatePicker();
@@ -102,6 +125,15 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.btnEndTime:
                     ShowTimePicker(false);
                     break;
+                case R.id.btnAddShift:
+                    if (shiftIsValid()) {
+                        shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
+                        tvShiftDetails.setText(shift.toString());
+                        Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_LONG).show();
+                    }
+                    break;
             }
         }
     }
@@ -110,11 +142,15 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
-        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        final int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
         DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        MainActivity.this.year = year;
+                        MainActivity.this.month = month;
+                        MainActivity.this.dayOfMonth = day;
+                        MainActivity.this.dateIsSet = true;
                         tvDate.setText((month + 1) + "/" + day + "/" + year);
                     }
                 }, year, month, dayOfMonth);
@@ -132,13 +168,27 @@ public class MainActivity extends AppCompatActivity {
                     public void onTimeSet(TimePicker view, int hourOfDay,
                                           int minute) {
                         if (isStartTime) {
+                            startHour = hourOfDay;
+                            startMinute = minute;
+                            startTimeIsSet = true;
                             tvStartTime.setText(hourOfDay + ":" + minute);
                         } else {
+                            // MAKE SURE END TIME IS GREATER THAN START TIME
+                            endHour = hourOfDay;
+                            endMinute = minute;
+                            endTimeIsSet = true;
                             tvEndTime.setText(hourOfDay + ":" + minute);
                         }
-
                     }
                 }, hour, minute, false);
         timePickerDialog.show();
+    }
+
+    public Boolean shiftIsValid() {
+        boolean isValid = false;
+        if (jobIsSet && wageIsSet && startTimeIsSet && endTimeIsSet) {
+            isValid = true;
+        }
+        return isValid;
     }
 }
