@@ -27,6 +27,7 @@ public class RecyclerView_Config {
         private TextView txtHourlyWage;
         private TextView txtStartTime;
         private TextView txtEndTime;
+        private TextView txtDate;
 
         private String key;
 
@@ -38,12 +39,14 @@ public class RecyclerView_Config {
             txtHourlyWage = itemView.findViewById(R.id.txtHourlyWage);
             txtStartTime = itemView.findViewById(R.id.txtStartTime);
             txtEndTime = itemView.findViewById(R.id.txtEndTime);
+            txtDate = itemView.findViewById(R.id.txtDate);
         }
         public void bind(Shift shift, String key) {
             txtJobName.setText(shift.getJobName());
-            txtHourlyWage.setText("Hourly: $" + Double.toString(shift.getHourlyWage()));
+            txtHourlyWage.setText("$" + Double.toString(shift.getHourlyWage()) + "0");
             txtStartTime.setText("Start Time: " + shift.getTimeString(true, true));
             txtEndTime.setText("End Time: " + shift.getTimeString(false, true));
+            txtDate.setText(shift.getDateString());
             this.key = key;
         }
     }
