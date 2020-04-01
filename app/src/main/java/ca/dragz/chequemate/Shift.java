@@ -2,6 +2,9 @@ package ca.dragz.chequemate;
 
 import androidx.annotation.NonNull;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Shift {
     private String jobName;
     private double hourlyWage;
@@ -88,6 +91,21 @@ public class Shift {
             return String.format("%d:%d", hour, minute);
         }
     }
+
+//    public String getShiftGrossPay() {
+//        SimpleDateFormat format = new SimpleDateFormat("hhmm");
+//        Date startDate = format.parse("0900");
+//        Date endDate = format.parse("1730");
+//        DateTime jdStartDate = new DateTime(startDate);
+//        DateTime jdEndDate = new DateTime(endDate);
+//        int hours = Hours.hoursBetween(jdStartDate, jdEndDate).getHours();
+//        int minutes = Minutes.minutesBetween(jdStartDate, jdEndDate).getMinutes();
+//        minutes = minutes % 60;
+//
+//        System.out.println(hours + " hours " + minutes + " minutes");
+//
+//        return
+//    }
 
     public String getDateString() {
         return month + "/" + dayOfMonth + "/" + year;

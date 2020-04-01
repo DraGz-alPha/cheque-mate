@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvDate;
     private TextView tvStartTime;
     private TextView tvEndTime;
-    private TextView tvShiftDetails;
 
     private Shift shift;
 
@@ -100,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         tvDate = findViewById(R.id.tvDate);
         tvStartTime = findViewById(R.id.tvStartTime);
         tvEndTime = findViewById(R.id.tvEndTime);
-        tvShiftDetails = findViewById(R.id.tvShiftDetails);
 
         btnSetDate = findViewById(R.id.btnSetDate);
         btnStartTime = findViewById(R.id.btnStartTime);
@@ -159,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
                     if (shiftIsValid()) {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
                         fireShift();
-                        tvShiftDetails.setText(shift.toString());
                         Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_LONG).show();
