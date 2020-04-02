@@ -7,7 +7,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -154,9 +158,11 @@ public class MainActivity extends AppCompatActivity {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
                         fireShift();
                         Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
+                        vibrate(false);
                         clearInputs();
                     } else {
                         Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
+                        vibrate(true);
                     }
                     break;
             }
@@ -248,3 +254,25 @@ public class MainActivity extends AppCompatActivity {
         startTimeIsSet = false;
         endTimeIsSet = false;
     }
+
+    public void vibrate(boolean isError) {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (!isError) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                assert vibrator != null;
+                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(10);
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                assert vibrator != null;
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(100);
+            }
+        }
+    }
+}
