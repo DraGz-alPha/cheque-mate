@@ -19,14 +19,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,13 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
     private String jobName = "Nyhof Farms";
     private double hourlyWage = 18.50;
-    private int year;
-    private int month;
-    private int dayOfMonth;
-    private int startHour;
-    private int startMinute;
-    private int endHour;
-    private int endMinute;
+    private Integer year;
+    private Integer month;
+    private Integer dayOfMonth;
+    private Integer startHour;
+    private Integer startMinute;
+    private Integer endHour;
+    private Integer endMinute;
 
     private boolean jobIsSet = true;
     private boolean wageIsSet = true;
@@ -157,9 +153,10 @@ public class MainActivity extends AppCompatActivity {
                     if (shiftIsValid()) {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
                         fireShift();
-                        Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
+                        clearInputs();
                     } else {
-                        Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
                     }
                     break;
             }
@@ -235,4 +232,19 @@ public class MainActivity extends AppCompatActivity {
             mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
         }
     }
-}
+
+    public void clearInputs() {
+        year = null;
+        month = null;
+        dayOfMonth = null;
+        startHour = null;
+        startMinute = null;
+        endHour = null;
+        endMinute = null;
+        tvDate.setText("--");
+        tvStartTime.setText("--");
+        tvEndTime.setText("--");
+        dateIsSet = false;
+        startTimeIsSet = false;
+        endTimeIsSet = false;
+    }
