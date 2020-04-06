@@ -15,11 +15,13 @@ public class Shift {
     private int startMinute;
     private int endHour;
     private int endMinute;
+    private double deductionPercentage;
+    private double deductionAmount;
 
     public Shift() {
     }
 
-    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute) {
+    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute, double deductionPercentage, double deductionAmount) {
         this.jobName = jobName;
         this.hourlyWage = hourlyWage;
         this.year = year;
@@ -29,6 +31,8 @@ public class Shift {
         this.startMinute = startMinute;
         this.endHour = endHour;
         this.endMinute = endMinute;
+        this.deductionPercentage = deductionPercentage;
+        this.deductionAmount = deductionAmount;
     }
 
     public String getJobName() {
@@ -50,6 +54,10 @@ public class Shift {
     public int getDayOfMonth() {
         return dayOfMonth;
     }
+
+    public double getDeductionPercentage() { return deductionPercentage; }
+
+    public double getDeductionAmount() { return deductionAmount; }
 
     public int getStartHour() {
         return startHour;
@@ -92,7 +100,7 @@ public class Shift {
         }
     }
 
-    public double getGrossIncome() {
+    public double getGrossPay() {
         int startHour = getStartHour();
         int endHour = getEndHour();
         int hours;
@@ -105,6 +113,10 @@ public class Shift {
         double hourlyWage = getHourlyWage();
 
         return (hourlyWage * hours) + (hourlyWage * minutes / 60);
+    }
+
+    public double getNetPay() {
+        return getGrossPay() * (1 - getDeductionPercentage()) - getDeductionAmount();
     }
 
     public String getDateString() {

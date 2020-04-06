@@ -29,7 +29,8 @@ public class RecyclerView_Config {
         private TextView txtStartTime;
         private TextView txtEndTime;
         private TextView txtDate;
-        private TextView txtGrossIncome;
+        private TextView txtGrossPay;
+        private TextView txtNetPay;
 
         private String key;
 
@@ -42,15 +43,18 @@ public class RecyclerView_Config {
             txtStartTime = itemView.findViewById(R.id.txtStartTime);
             txtEndTime = itemView.findViewById(R.id.txtEndTime);
             txtDate = itemView.findViewById(R.id.txtDate);
-            txtGrossIncome = itemView.findViewById(R.id.txtGrossIncome);
+            txtGrossPay = itemView.findViewById(R.id.txtGrossPay);
+            txtNetPay = itemView.findViewById(R.id.txtNetPay);
         }
         public void bind(Shift shift, String key) {
             txtJobName.setText(shift.getJobName());
             txtHourlyWage.setText("$" + Double.toString(shift.getHourlyWage()) + "0");
-            txtStartTime.setText("Start Time: " + shift.getTimeString(true, true));
-            txtEndTime.setText("End Time: " + shift.getTimeString(false, true));
+            txtStartTime.setText(shift.getTimeString(true, true));
+            txtEndTime.setText(shift.getTimeString(false, true));
             txtDate.setText(shift.getDateString());
-            txtGrossIncome.setText(String.format("$%.2f", shift.getGrossIncome()));
+            txtGrossPay.setText(String.format("$%.2f", shift.getGrossPay()));
+            txtNetPay.setText(String.format("$%.2f", shift.getNetPay()));
+
             this.key = key;
         }
     }

@@ -36,8 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
 
-    private String jobName = "Nyhof Farms";
-    private double hourlyWage = 18.50;
+    private final String jobName = "Nyhof Farms";
+    private final double hourlyWage = 18.50;
+    private final double deductionPercentage = 0.2;
+    private final double deductionAmount = 15.43;
     private Integer year;
     private Integer month;
     private Integer dayOfMonth;
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.btnAddShift:
                     if (shiftIsValid()) {
-                        shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute);
+                        shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount);
                         fireShift();
                         Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
                         vibrate(false);
@@ -236,6 +238,8 @@ public class MainActivity extends AppCompatActivity {
             mDatabase.child("shifts").child(key).child("startMinute").setValue(startMinute);
             mDatabase.child("shifts").child(key).child("endHour").setValue(endHour);
             mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
+            mDatabase.child("shifts").child(key).child("deductionPercentage").setValue(deductionPercentage);
+            mDatabase.child("shifts").child(key).child("deductionAmount").setValue(deductionAmount);
         }
     }
 
