@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.btnAddShift:
                     if (shiftIsValid()) {
-                        shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount);
+                        shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount, "");
                         fireShift();
                         Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
                         vibrate(false);
@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
             mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
             mDatabase.child("shifts").child(key).child("deductionPercentage").setValue(deductionPercentage);
             mDatabase.child("shifts").child(key).child("deductionAmount").setValue(deductionAmount);
+            mDatabase.child("shifts").child(key).child("notes").setValue("It's a note!");
         }
     }
 

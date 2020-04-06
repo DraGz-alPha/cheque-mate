@@ -1,5 +1,6 @@
 package ca.dragz.chequemate;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -46,9 +47,10 @@ public class RecyclerView_Config {
             txtGrossPay = itemView.findViewById(R.id.txtGrossPay);
             txtNetPay = itemView.findViewById(R.id.txtNetPay);
         }
+        @SuppressLint({"DefaultLocale", "SetTextI18n"})
         public void bind(Shift shift, String key) {
             txtJobName.setText(shift.getJobName());
-            txtHourlyWage.setText("$" + Double.toString(shift.getHourlyWage()) + "0");
+            txtHourlyWage.setText("$" + shift.getHourlyWage() + "0");
             txtStartTime.setText(shift.getTimeString(true, true));
             txtEndTime.setText(shift.getTimeString(false, true));
             txtDate.setText(shift.getDateString());

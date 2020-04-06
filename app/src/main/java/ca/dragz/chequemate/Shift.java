@@ -17,11 +17,12 @@ public class Shift {
     private int endMinute;
     private double deductionPercentage;
     private double deductionAmount;
+    private String notes;
 
     public Shift() {
     }
 
-    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute, double deductionPercentage, double deductionAmount) {
+    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute, double deductionPercentage, double deductionAmount, String notes) {
         this.jobName = jobName;
         this.hourlyWage = hourlyWage;
         this.year = year;
@@ -33,6 +34,7 @@ public class Shift {
         this.endMinute = endMinute;
         this.deductionPercentage = deductionPercentage;
         this.deductionAmount = deductionAmount;
+        this.notes = notes;
     }
 
     public String getJobName() {
@@ -41,6 +43,10 @@ public class Shift {
 
     public double getHourlyWage() {
         return hourlyWage;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 
     public int getYear() {
