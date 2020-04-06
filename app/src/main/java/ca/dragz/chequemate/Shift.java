@@ -15,11 +15,14 @@ public class Shift {
     private int startMinute;
     private int endHour;
     private int endMinute;
+    private double deductionPercentage;
+    private double deductionAmount;
+    private String notes;
 
     public Shift() {
     }
 
-    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute) {
+    public Shift(String jobName, double hourlyWage, int year, int month, int dayOfMonth, int startHour, int startMinute, int endHour, int endMinute, double deductionPercentage, double deductionAmount, String notes) {
         this.jobName = jobName;
         this.hourlyWage = hourlyWage;
         this.year = year;
@@ -29,6 +32,9 @@ public class Shift {
         this.startMinute = startMinute;
         this.endHour = endHour;
         this.endMinute = endMinute;
+        this.deductionPercentage = deductionPercentage;
+        this.deductionAmount = deductionAmount;
+        this.notes = notes;
     }
 
     public String getJobName() {
@@ -37,6 +43,10 @@ public class Shift {
 
     public double getHourlyWage() {
         return hourlyWage;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 
     public int getYear() {
@@ -50,6 +60,10 @@ public class Shift {
     public int getDayOfMonth() {
         return dayOfMonth;
     }
+
+    public double getDeductionPercentage() { return deductionPercentage; }
+
+    public double getDeductionAmount() { return deductionAmount; }
 
     public int getStartHour() {
         return startHour;
@@ -92,20 +106,24 @@ public class Shift {
         }
     }
 
-//    public String getShiftGrossPay() {
-//        SimpleDateFormat format = new SimpleDateFormat("hhmm");
-//        Date startDate = format.parse("0900");
-//        Date endDate = format.parse("1730");
-//        DateTime jdStartDate = new DateTime(startDate);
-//        DateTime jdEndDate = new DateTime(endDate);
-//        int hours = Hours.hoursBetween(jdStartDate, jdEndDate).getHours();
-//        int minutes = Minutes.minutesBetween(jdStartDate, jdEndDate).getMinutes();
-//        minutes = minutes % 60;
-//
-//        System.out.println(hours + " hours " + minutes + " minutes");
-//
-//        return
-//    }
+    public double getGrossPay() {
+        int startHour = getStartHour();
+        int endHour = getEndHour();
+        int hours;
+        int minutes = Math.abs(getStartMinute() - getEndMinute());
+        if (startHour > endHour) {
+            hours = 24 - getStartHour() + getEndHour();
+        } else {
+            hours = Math.abs(startHour - endHour);
+        }
+        double hourlyWage = getHourlyWage();
+
+        return (hourlyWage * hours) + (hourlyWage * minutes / 60);
+    }
+
+    public double getNetPay() {
+        return getGrossPay() * (1 - getDeductionPercentage()) - getDeductionAmount();
+    }
 
     public String getDateString() {
         return month + "/" + dayOfMonth + "/" + year;

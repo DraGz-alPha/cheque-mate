@@ -1,8 +1,8 @@
 package ca.dragz.chequemate;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 
 public class RecyclerView_Config {
@@ -28,6 +30,8 @@ public class RecyclerView_Config {
         private TextView txtStartTime;
         private TextView txtEndTime;
         private TextView txtDate;
+        private TextView txtGrossPay;
+        private TextView txtNetPay;
 
         private String key;
 
@@ -40,13 +44,19 @@ public class RecyclerView_Config {
             txtStartTime = itemView.findViewById(R.id.txtStartTime);
             txtEndTime = itemView.findViewById(R.id.txtEndTime);
             txtDate = itemView.findViewById(R.id.txtDate);
+            txtGrossPay = itemView.findViewById(R.id.txtGrossPay);
+            txtNetPay = itemView.findViewById(R.id.txtNetPay);
         }
+        @SuppressLint({"DefaultLocale", "SetTextI18n"})
         public void bind(Shift shift, String key) {
             txtJobName.setText(shift.getJobName());
-            txtHourlyWage.setText("$" + Double.toString(shift.getHourlyWage()) + "0");
-            txtStartTime.setText("Start Time: " + shift.getTimeString(true, true));
-            txtEndTime.setText("End Time: " + shift.getTimeString(false, true));
+            txtHourlyWage.setText("$" + shift.getHourlyWage() + "0");
+            txtStartTime.setText(shift.getTimeString(true, true));
+            txtEndTime.setText(shift.getTimeString(false, true));
             txtDate.setText(shift.getDateString());
+            txtGrossPay.setText(String.format("$%.2f", shift.getGrossPay()));
+            txtNetPay.setText(String.format("$%.2f", shift.getNetPay()));
+
             this.key = key;
         }
     }
