@@ -70,10 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText etJobName;
 
-    private TextView tvDate;
-    private TextView tvStartTime;
-    private TextView tvEndTime;
-
     private Job job;
     private Shift shift;
 
@@ -115,10 +111,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        tvDate = findViewById(R.id.tvDate);
-        tvStartTime = findViewById(R.id.tvStartTime);
-        tvEndTime = findViewById(R.id.tvEndTime);
 
         btnSetDate = findViewById(R.id.btnSetDate);
         btnStartTime = findViewById(R.id.btnStartTime);
@@ -251,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.month = month + 1;
                         MainActivity.this.dayOfMonth = day;
                         MainActivity.this.dateIsSet = true;
-                        tvDate.setText((month + 1) + "/" + day + "/" + year);
+                        btnSetDate.setText((month + 1) + "/" + day + "/" + year);
                     }
                 }, year, month, dayOfMonth);
         datePickerDialog.show();
@@ -271,13 +263,13 @@ public class MainActivity extends AppCompatActivity {
                             startHour = hourOfDay;
                             startMinute = minute;
                             startTimeIsSet = true;
-                            tvStartTime.setText(hourOfDay + ":" + minute);
+                            btnStartTime.setText(hourOfDay + ":" + minute);
                         } else {
                             // MAKE SURE END TIME IS GREATER THAN START TIME
                             endHour = hourOfDay;
                             endMinute = minute;
                             endTimeIsSet = true;
-                            tvEndTime.setText(hourOfDay + ":" + minute);
+                            btnEndTime.setText(hourOfDay + ":" + minute);
                         }
                     }
                 }, hour, minute, false);
@@ -314,9 +306,9 @@ public class MainActivity extends AppCompatActivity {
         startMinute = null;
         endHour = null;
         endMinute = null;
-        tvDate.setText("--");
-        tvStartTime.setText("--");
-        tvEndTime.setText("--");
+        btnSetDate.setText("Date");
+        btnStartTime.setText("Start Time");
+        btnEndTime.setText("End Tme");
         dateIsSet = false;
         startTimeIsSet = false;
         endTimeIsSet = false;
