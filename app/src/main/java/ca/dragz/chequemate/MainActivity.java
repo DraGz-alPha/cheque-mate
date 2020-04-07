@@ -17,8 +17,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -27,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,8 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
+    private Spinner spnJobs;
 
-    private final String jobName = "Nyhof Farms";
+    private String jobId;
+    private String selectedJobId;
+    private String jobName = "Nyhof Farms";
     private final double hourlyWage = 18.50;
     private final double deductionPercentage = 0.2;
     private final double deductionAmount = 15.43;
@@ -58,11 +66,15 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStartTime;
     private Button btnEndTime;
     private Button btnAddShift;
+    private Button btnAddJob;
+
+    private EditText etJobName;
 
     private TextView tvDate;
     private TextView tvStartTime;
     private TextView tvEndTime;
 
+    private Job job;
     private Shift shift;
 
     @Override
@@ -76,10 +88,16 @@ public class MainActivity extends AppCompatActivity {
         EventHandler eventHandler = new EventHandler();
 
         rvShifts = findViewById(R.id.rvShifts);
-        new FirebaseDatabaseHelper().readShifts(new FirebaseDatabaseHelper.DataStatus() {
+        spnJobs = findViewById(R.id.spnJobs);
+        spnJobs.setOnItemSelectedListener(eventHandler);
+
+        new FirebaseDatabaseHelper().readJobs(new FirebaseDatabaseHelper.JobDataStatus() {
             @Override
-            public void DataIsLoaded(List<Shift> shifts, List<String> keys) {
-                new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys);
+            public void JobDataIsLoaded(List<Job> jobs, List<String> keys) {
+                //fill data in spinner
+                ArrayAdapter<Job> spinnerAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, jobs);
+                spnJobs.setAdapter(spinnerAdapter);
+                spnJobs.setSelection(spinnerAdapter.getPosition(job));//Optional to set the selected item.
             }
 
             @Override
@@ -106,10 +124,14 @@ public class MainActivity extends AppCompatActivity {
         btnStartTime = findViewById(R.id.btnStartTime);
         btnEndTime = findViewById(R.id.btnEndTime);
         btnAddShift = findViewById(R.id.btnAddShift);
+        btnAddJob = findViewById(R.id.btnAddJob);
         btnSetDate.setOnClickListener(eventHandler);
         btnStartTime.setOnClickListener(eventHandler);
         btnEndTime.setOnClickListener(eventHandler);
         btnAddShift.setOnClickListener(eventHandler);
+        btnAddJob.setOnClickListener(eventHandler);
+
+        etJobName = findViewById(R.id.etJobName);
     }
 
     //to inflate the xml menu file
@@ -141,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         return returnVal;
     }
 
-    public class EventHandler implements View.OnClickListener {
+    public class EventHandler implements View.OnClickListener, Spinner.OnItemSelectedListener {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -167,7 +189,52 @@ public class MainActivity extends AppCompatActivity {
                         vibrate(true);
                     }
                     break;
+                case R.id.btnAddJob:
+                    if (etJobName.getText().toString().trim().length() > 0) {
+                        job = new Job(etJobName.getText().toString().trim(), 18);
+                        fireJob();
+                        etJobName.setText(""); // Reset EditText
+                        vibrate(false);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Job name field can't be empty!", Toast.LENGTH_SHORT).show();
+                        vibrate(true);
+                    }
+                    break;
             }
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            Job job = (Job) spnJobs.getItemAtPosition(position);
+            selectedJobId = job.getJobId();
+            jobName = job.getJobName();
+            new FirebaseDatabaseHelper().readShifts(selectedJobId, new FirebaseDatabaseHelper.ShiftDataStatus() {
+                @Override
+                public void ShiftDataIsLoaded(List<Shift> shifts, List<String> keys) {
+                    new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys);
+                }
+
+                @Override
+                public void DataIsInserted() {
+
+                }
+
+                @Override
+                public void DataIsUpdated() {
+
+                }
+
+                @Override
+                public void DataIsDeleted() {
+
+                }
+            });
+//            Toast.makeText(MainActivity.this, "Job Id: " + selectedJobId, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
         }
     }
 
@@ -225,22 +292,17 @@ public class MainActivity extends AppCompatActivity {
         return isValid;
     }
 
+    public void fireJob() {
+        DatabaseReference jobEntries = FirebaseDatabase.getInstance().getReference().child("jobs");
+        jobId = jobEntries.push().getKey();
+        jobEntries.child(jobId).setValue(job);
+    }
+
     public void fireShift() {
-        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference("shifts");
+        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference();
         String key = shiftEntries.push().getKey();
         if (key != null) {
-            mDatabase.child("shifts").child(key).child("jobName").setValue(jobName);
-            mDatabase.child("shifts").child(key).child("hourlyWage").setValue(hourlyWage);
-            mDatabase.child("shifts").child(key).child("year").setValue(year);
-            mDatabase.child("shifts").child(key).child("month").setValue(month);
-            mDatabase.child("shifts").child(key).child("dayOfMonth").setValue(dayOfMonth);
-            mDatabase.child("shifts").child(key).child("startHour").setValue(startHour);
-            mDatabase.child("shifts").child(key).child("startMinute").setValue(startMinute);
-            mDatabase.child("shifts").child(key).child("endHour").setValue(endHour);
-            mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
-            mDatabase.child("shifts").child(key).child("deductionPercentage").setValue(deductionPercentage);
-            mDatabase.child("shifts").child(key).child("deductionAmount").setValue(deductionAmount);
-            mDatabase.child("shifts").child(key).child("notes").setValue("It's a note!");
+            mDatabase.child("jobs").child(selectedJobId).child("shifts").child(key).setValue(shift);
         }
     }
 
@@ -258,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         dateIsSet = false;
         startTimeIsSet = false;
         endTimeIsSet = false;
+        shift = null;
     }
 
     public void vibrate(boolean isError) {
