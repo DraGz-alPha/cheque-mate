@@ -26,7 +26,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -186,6 +188,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    private void ClearJobInputs() {
+        etJobName.setText("");
+        etHourlyWage.setText("");
+        etDeductionPercentage.setText("");
+        etDeductionAmount.setText("");
+    }
+
     class EventHandler implements Switch.OnCheckedChangeListener, Button.OnClickListener, Spinner.OnItemSelectedListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -211,8 +220,7 @@ public class SettingsActivity extends AppCompatActivity {
                         double deductionAmount = Double.parseDouble(etDeductionAmount.getText().toString().trim());
                         job = new Job(jobName, hourlyWage, deductionAmount, deductionPercentage);
                         fireJob();
-                        etJobName.setText("");
-                        etHourlyWage.setText("");
+                        ClearJobInputs();
                         Toast.makeText(SettingsActivity.this, "'" + jobName + "' has been created", Toast.LENGTH_SHORT).show();
                         vibrate(hapticFeedbackEnabled, false);
                     } else {
@@ -226,8 +234,12 @@ public class SettingsActivity extends AppCompatActivity {
                         double hourlyWage = Double.parseDouble(etHourlyWage.getText().toString().trim());
                         double deductionPercentage = Double.parseDouble(etDeductionPercentage.getText().toString().trim());
                         double deductionAmount = Double.parseDouble(etDeductionAmount.getText().toString().trim());
-                        Job job = new Job(jobName, hourlyWage, deductionAmount, deductionPercentage);
-                        mDatabase.child("jobs").child(selectedJobId).setValue(job);
+                        Map<String, Object> updatedJob = new HashMap<>();
+                        updatedJob.put("jobName", jobName);
+                        updatedJob.put("hourlyWage", hourlyWage);
+                        updatedJob.put("deductionPercentage", deductionPercentage);
+                        updatedJob.put("deductionAmount", deductionAmount);
+                        mDatabase.child("jobs").child(selectedJobId).updateChildren(updatedJob);
                         Toast.makeText(SettingsActivity.this, "Job '" + jobName + "' has been updated", Toast.LENGTH_SHORT).show();
                         vibrate(hapticFeedbackEnabled, false);
                     } else {
@@ -268,10 +280,7 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.btnClearJobInputs:
-                    etJobName.setText("");
-                    etHourlyWage.setText("");
-                    etDeductionPercentage.setText("");
-                    etDeductionAmount.setText("");
+                    ClearJobInputs();
                     break;
             }
         }
