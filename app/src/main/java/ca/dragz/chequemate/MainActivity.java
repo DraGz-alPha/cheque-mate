@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPreferences;
     private boolean hapticFeedbackEnabled;
+    private boolean isMilitaryTime;
 
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
@@ -137,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         RefreshShifts();
         hapticFeedbackEnabled = sharedPreferences.getBoolean("haptic_feedback", true);
+        isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
     }
 
     //to inflate the xml menu file
@@ -261,7 +263,6 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
-        boolean isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
 
@@ -272,17 +273,43 @@ public class MainActivity extends AppCompatActivity {
                             startHour = hourOfDay;
                             startMinute = minute;
                             startTimeIsSet = true;
-                            btnStartTime.setText(hourOfDay + ":" + minute);
+                            btnStartTime.setText(getTimeString(true, isMilitaryTime));
                         } else {
                             // MAKE SURE END TIME IS GREATER THAN START TIME
                             endHour = hourOfDay;
                             endMinute = minute;
                             endTimeIsSet = true;
-                            btnEndTime.setText(hourOfDay + ":" + minute);
+                            btnEndTime.setText(getTimeString(false, isMilitaryTime));
                         }
                     }
                 }, hour, minute, isMilitaryTime);
         timePickerDialog.show();
+    }
+
+    public String getTimeString(boolean isStartTime, boolean isMilitaryTime) {
+        int hour = startHour;
+        int minute = startMinute;
+        String symbol = "AM";
+
+        if (!isStartTime) {
+            hour = endHour;
+            minute = endMinute;
+        }
+        if (!isMilitaryTime) {
+            if (hour == 0) {
+                hour = 12;
+            } else if (hour == 12) {
+                symbol = "PM";
+            } else if (hour > 12) {
+                hour = hour - 12;
+                symbol = "PM";
+            }
+            return (minute < 10) ? String.format("%d:0%d %s", hour, minute , symbol) : String.format("%d:%d %s", hour, minute , symbol);
+        } else {
+            String militaryHour = (hour < 10) ? String.format("0%d", hour) : String.format("%d", hour);
+            String militaryMinute = (minute < 10) ? String.format("0%d", minute) : String.format("%d", minute);
+            return String.format("%s:%s", militaryHour, militaryMinute);
+        }
     }
 
     public Boolean shiftIsValid() {
@@ -291,12 +318,6 @@ public class MainActivity extends AppCompatActivity {
             isValid = true;
         }
         return isValid;
-    }
-
-    public void fireJob() {
-        DatabaseReference jobEntries = FirebaseDatabase.getInstance().getReference().child("jobs");
-        jobId = jobEntries.push().getKey();
-        jobEntries.child(jobId).setValue(job);
     }
 
     public void fireShift() {
