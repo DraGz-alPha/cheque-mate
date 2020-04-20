@@ -22,13 +22,11 @@
         android:id="@+id/swMilitaryTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="145dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="145dp"
         android:text="Military Time"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtSettings" />
+        app:layout_constraintTop_toBottomOf="@+id/txtPreferences" />
 
     <Spinner
         android:id="@+id/spnSettingsJobs"
@@ -77,11 +75,11 @@
         android:id="@+id/txtJob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="Job Details:"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/swMilitaryTime" />
+        app:layout_constraintTop_toBottomOf="@+id/txtSettings" />
 
     <Button
         android:id="@+id/btnAddJob"
@@ -136,4 +134,25 @@
         app:layout_constraintEnd_toStartOf="@+id/btnClearJobInputs"
         app:layout_constraintStart_toEndOf="@+id/btnUpdateJob"
         app:layout_constraintTop_toBottomOf="@+id/etDeductionAmount" />
+
+    <TextView
+        android:id="@+id/txtPreferences"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Preferences:"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnUpdateJob" />
+
+    <Switch
+        android:id="@+id/swHapticFeedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="19dp"
+        android:text="Haptic Feedback"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/swMilitaryTime" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

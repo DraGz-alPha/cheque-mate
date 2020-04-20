@@ -38,6 +38,8 @@ public class SettingsActivity extends AppCompatActivity {
     private String jobId;
 
     private Switch swMilitaryTime;
+    private Switch swHapticFeedback;
+    private boolean hapticFeedbackEnabled;
 
     private Spinner spnSettingsJobs;
 
@@ -63,6 +65,8 @@ public class SettingsActivity extends AppCompatActivity {
         EventHandler eventHandler = new EventHandler();
 
         swMilitaryTime = findViewById(R.id.swMilitaryTime);
+        swHapticFeedback = findViewById(R.id.swHapticFeedback);
+        hapticFeedbackEnabled = sharedPreferences.getBoolean("haptic_feedback", true);
         spnSettingsJobs = findViewById(R.id.spnSettingsJobs);
 
         etJobName = findViewById(R.id.etJobName);
@@ -78,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
         InitializeSettings();
 
         swMilitaryTime.setOnCheckedChangeListener(eventHandler);
+        swHapticFeedback.setOnCheckedChangeListener(eventHandler);
 
         spnSettingsJobs.setOnItemSelectedListener(eventHandler);
 
@@ -114,11 +119,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void InitializeSettings() {
         boolean isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
-
+        boolean isHapticFeedback = sharedPreferences.getBoolean("haptic_feedback", true);
         swMilitaryTime.setChecked(isMilitaryTime);
+        swHapticFeedback.setChecked(isHapticFeedback);
     }
 
-    private void SaveSwitchField(String field, boolean isChecked) {
+    private void SaveSwitchField(String displayName, String field, boolean isChecked) {
         String state = isChecked == true ? "enabled" : "disabled";
 
         editor = sharedPreferences.edit();
@@ -126,9 +132,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         boolean successful = editor.commit();
         if (successful) {
-            Toast.makeText(this, "Military time has been " + state, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, displayName + " has been " + state, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Sorry, there was a problem updating the time format...", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Sorry, there was a problem updating " + displayName + "...", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -157,23 +163,25 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public void vibrate(boolean isError) {
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (!isError) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+    public void vibrate(boolean isEnabled, boolean isError) {
+        if (isEnabled) {
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (!isError) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(10);
+                }
             } else {
-                //deprecated in API 26
-                vibrator.vibrate(10);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                //deprecated in API 26
-                vibrator.vibrate(100);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(100);
+                }
             }
         }
     }
@@ -183,7 +191,11 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             switch (buttonView.getId()) {
                 case R.id.swMilitaryTime:
-                    SaveSwitchField("military_time", isChecked);
+                    SaveSwitchField("Military time", "military_time", isChecked);
+                    break;
+                case R.id.swHapticFeedback:
+                    SaveSwitchField("Haptic feedback", "haptic_feedback", isChecked);
+                    hapticFeedbackEnabled = isChecked;
                     break;
             }
         }
@@ -202,10 +214,10 @@ public class SettingsActivity extends AppCompatActivity {
                         etJobName.setText("");
                         etHourlyWage.setText("");
                         Toast.makeText(SettingsActivity.this, "'" + jobName + "' has been created", Toast.LENGTH_SHORT).show();
-                        vibrate(false);
+                        vibrate(hapticFeedbackEnabled, false);
                     } else {
                         Toast.makeText(SettingsActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
-                        vibrate(true);
+                        vibrate(hapticFeedbackEnabled, true);
                     }
                     break;
                 case R.id.btnUpdateJob:
@@ -217,8 +229,10 @@ public class SettingsActivity extends AppCompatActivity {
                         Job job = new Job(jobName, hourlyWage, deductionAmount, deductionPercentage);
                         mDatabase.child("jobs").child(selectedJobId).setValue(job);
                         Toast.makeText(SettingsActivity.this, "Job '" + jobName + "' has been updated", Toast.LENGTH_SHORT).show();
+                        vibrate(hapticFeedbackEnabled, false);
                     } else {
                         Toast.makeText(SettingsActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
+                        vibrate(hapticFeedbackEnabled, true);
                     }
                     break;
                 case R.id.btnDeleteJob:
@@ -238,8 +252,10 @@ public class SettingsActivity extends AppCompatActivity {
                                                     etDeductionPercentage.setText("");
                                                     etDeductionAmount.setText("");
                                                     Toast.makeText(SettingsActivity.this, "Job has been deleted", Toast.LENGTH_SHORT).show();
+                                                    vibrate(hapticFeedbackEnabled, false);
                                                 } else {
                                                     Toast.makeText(SettingsActivity.this, "Unable to delete job", Toast.LENGTH_SHORT).show();
+                                                    vibrate(hapticFeedbackEnabled, true);
                                                 }
                                             }
                                         });

@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private SharedPreferences sharedPreferences;
+    private boolean hapticFeedbackEnabled;
 
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         RefreshShifts();
+        hapticFeedbackEnabled = sharedPreferences.getBoolean("haptic_feedback", true);
     }
 
     //to inflate the xml menu file
@@ -184,11 +186,11 @@ public class MainActivity extends AppCompatActivity {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount, "");
                         fireShift();
                         Toast.makeText(MainActivity.this, "Shift added successfully", Toast.LENGTH_SHORT).show();
-                        vibrate(false);
+                        vibrate(hapticFeedbackEnabled, false);
                         clearInputs();
                     } else {
                         Toast.makeText(MainActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
-                        vibrate(true);
+                        vibrate(hapticFeedbackEnabled, true);
                     }
                     break;
             }
@@ -322,23 +324,25 @@ public class MainActivity extends AppCompatActivity {
         shift = null;
     }
 
-    public void vibrate(boolean isError) {
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (!isError) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+    public void vibrate(boolean isEnabled, boolean isError) {
+        if (isEnabled) {
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (!isError) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(10);
+                }
             } else {
-                //deprecated in API 26
-                vibrator.vibrate(10);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                //deprecated in API 26
-                vibrator.vibrate(100);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(100);
+                }
             }
         }
     }
