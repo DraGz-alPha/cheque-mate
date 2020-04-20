@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -36,7 +38,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final int STANDARD_REQUEST_CODE = 123;
     Toolbar toolbar;
+
+    private SharedPreferences sharedPreferences;
 
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
@@ -79,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        sharedPreferences = getSharedPreferences("ChequeMate", MODE_PRIVATE);
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         EventHandler eventHandler = new EventHandler();
@@ -126,6 +134,12 @@ public class MainActivity extends AppCompatActivity {
         etJobName = findViewById(R.id.etJobName);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RefreshShifts();
+    }
+
     //to inflate the xml menu file
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -147,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_settings:
                 Log.d("DGM", "settings menu item");
-//                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-//                startActivityForResult(i, STANDARD_REQUEST_CODE);
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(i, STANDARD_REQUEST_CODE);
                 returnVal = true;
                 break;
         }
@@ -200,27 +214,7 @@ public class MainActivity extends AppCompatActivity {
             Job job = (Job) spnJobs.getItemAtPosition(position);
             selectedJobId = job.getJobId();
             jobName = job.getJobName();
-            new FirebaseDatabaseHelper().readShifts(selectedJobId, new FirebaseDatabaseHelper.ShiftDataStatus() {
-                @Override
-                public void ShiftDataIsLoaded(List<Shift> shifts, List<String> keys) {
-                    new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys);
-                }
-
-                @Override
-                public void DataIsInserted() {
-
-                }
-
-                @Override
-                public void DataIsUpdated() {
-
-                }
-
-                @Override
-                public void DataIsDeleted() {
-
-                }
-            });
+            RefreshShifts();
 //            Toast.makeText(MainActivity.this, "Job Id: " + selectedJobId, Toast.LENGTH_LONG).show();
         }
 
@@ -228,6 +222,30 @@ public class MainActivity extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> parent) {
 
         }
+    }
+
+    public void RefreshShifts() {
+        new FirebaseDatabaseHelper().readShifts(selectedJobId, new FirebaseDatabaseHelper.ShiftDataStatus() {
+            @Override
+            public void ShiftDataIsLoaded(List<Shift> shifts, List<String> keys) {
+                new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys, sharedPreferences);
+            }
+
+            @Override
+            public void DataIsInserted() {
+
+            }
+
+            @Override
+            public void DataIsUpdated() {
+
+            }
+
+            @Override
+            public void DataIsDeleted() {
+
+            }
+        });
     }
 
     public void ShowDatePicker() {
@@ -253,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
+        boolean isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                 new TimePickerDialog.OnTimeSetListener() {
 
@@ -272,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                             btnEndTime.setText(hourOfDay + ":" + minute);
                         }
                     }
-                }, hour, minute, false);
+                }, hour, minute, isMilitaryTime);
         timePickerDialog.show();
     }
 

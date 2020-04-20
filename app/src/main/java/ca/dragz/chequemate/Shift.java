@@ -81,7 +81,7 @@ public class Shift {
         return endMinute;
     }
 
-    public String getTimeString(boolean isStartTime, boolean isAmPm) {
+    public String getTimeString(boolean isStartTime, boolean isMilitaryTime) {
         int hour = startHour;
         int minute = startMinute;
         String symbol = "AM";
@@ -91,7 +91,7 @@ public class Shift {
             hour = endHour;
             minute = endMinute;
         }
-        if (isAmPm) {
+        if (!isMilitaryTime) {
             if (hour == 0) {
                 hour = 12;
             } else if (hour == 12) {
