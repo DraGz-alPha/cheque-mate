@@ -34,7 +34,7 @@
         android:id="@+id/spnSettingsJobs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtJob" />
@@ -55,21 +55,21 @@
         android:id="@+id/btnUpdateJob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="Update Job"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnDeleteJob"
+        app:layout_constraintStart_toEndOf="@+id/btnAddJob"
         app:layout_constraintTop_toBottomOf="@+id/etHourlyWage" />
 
     <EditText
         android:id="@+id/etHourlyWage"
-        android:layout_width="wrap_content"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Hourly Wage"
         android:inputType="numberDecimal"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etJobName" />
 
@@ -87,10 +87,10 @@
         android:id="@+id/btnAddJob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="48dp"
         android:text="Add Job"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etHourlyWage" />
 
     <Button
@@ -98,8 +98,42 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
         android:text="Clear"
-        app:layout_constraintEnd_toStartOf="@+id/btnAddJob"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etDeductionPercentage" />
+
+    <EditText
+        android:id="@+id/etDeductionPercentage"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="Deduction %"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toStartOf="@+id/etDeductionAmount"
+        app:layout_constraintStart_toEndOf="@+id/etHourlyWage"
+        app:layout_constraintTop_toBottomOf="@+id/etJobName" />
+
+    <EditText
+        android:id="@+id/etDeductionAmount"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:hint="Deduction $"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etJobName" />
+
+    <Button
+        android:id="@+id/btnDeleteJob"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Delete Job"
+        app:layout_constraintEnd_toStartOf="@+id/btnClearJobInputs"
         app:layout_constraintStart_toEndOf="@+id/btnUpdateJob"
-        app:layout_constraintTop_toBottomOf="@+id/etHourlyWage" />
+        app:layout_constraintTop_toBottomOf="@+id/etDeductionAmount" />
 </androidx.constraintlayout.widget.ConstraintLayout>

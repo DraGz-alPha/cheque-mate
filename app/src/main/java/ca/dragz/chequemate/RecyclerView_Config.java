@@ -44,8 +44,6 @@ public class RecyclerView_Config {
             super(LayoutInflater.from(mContext).
             inflate(R.layout.shift_list_item, parent,false));
 
-            txtJobName = itemView.findViewById(R.id.txtJobName);
-            txtHourlyWage = itemView.findViewById(R.id.txtHourlyWage);
             txtStartTime = itemView.findViewById(R.id.txtStartTime);
             txtEndTime = itemView.findViewById(R.id.txtEndTime);
             txtDate = itemView.findViewById(R.id.txtDate);
@@ -57,8 +55,6 @@ public class RecyclerView_Config {
 
             boolean isMilitaryTime = mSharedPreferences.getBoolean("military_time", false);
 
-            txtJobName.setText(shift.getJobName());
-            txtHourlyWage.setText("$" + shift.getHourlyWage() + "0");
             txtStartTime.setText(shift.getTimeString(true, isMilitaryTime));
             txtEndTime.setText(shift.getTimeString(false, isMilitaryTime));
             txtDate.setText(shift.getDateString());
