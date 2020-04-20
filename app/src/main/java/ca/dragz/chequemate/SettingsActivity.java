@@ -249,32 +249,32 @@ public class SettingsActivity extends AppCompatActivity {
                     break;
                 case R.id.btnDeleteJob:
                     if (selectedJobId != null) {
-                        AlertDialog alertDialog = new AlertDialog.Builder(SettingsActivity.this).create();
-                        alertDialog.setTitle("Delete job");
-                        alertDialog.setMessage("Are you sure you want to delete this job? All associated shifts will be gone forever!");
-                        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes, delete",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mDatabase.child("jobs").child(selectedJobId).removeValue(new DatabaseReference.CompletionListener() {
-                                            @Override
-                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                                                if (databaseError == null) {
-                                                    etJobName.setText("");
-                                                    etHourlyWage.setText("");
-                                                    etDeductionPercentage.setText("");
-                                                    etDeductionAmount.setText("");
-                                                    Toast.makeText(SettingsActivity.this, "Job has been deleted", Toast.LENGTH_SHORT).show();
-                                                    vibrate(hapticFeedbackEnabled, false);
-                                                } else {
-                                                    Toast.makeText(SettingsActivity.this, "Unable to delete job", Toast.LENGTH_SHORT).show();
-                                                    vibrate(hapticFeedbackEnabled, true);
-                                                }
-                                            }
-                                        });
-                                        dialog.dismiss();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                        builder.setMessage("Are you sure you want to delete this job? All associated shifts will be gone forever!")
+                            .setPositiveButton("Yes, delete", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                mDatabase.child("jobs").child(selectedJobId).removeValue(new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                        if (databaseError == null) {
+                                            ClearJobInputs();
+                                            Toast.makeText(SettingsActivity.this, "Job has been deleted", Toast.LENGTH_SHORT).show();
+                                            vibrate(hapticFeedbackEnabled, false);
+                                        } else {
+                                            Toast.makeText(SettingsActivity.this, "Unable to delete job", Toast.LENGTH_SHORT).show();
+                                            vibrate(hapticFeedbackEnabled, true);
+                                        }
                                     }
                                 });
-                        alertDialog.show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // User cancelled the dialog
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
                     } else {
                         Toast.makeText(SettingsActivity.this, "No job is selected", Toast.LENGTH_SHORT).show();
                     }
