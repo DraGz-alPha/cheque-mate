@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -17,8 +19,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -27,19 +33,28 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final int STANDARD_REQUEST_CODE = 123;
     Toolbar toolbar;
+
+    private SharedPreferences sharedPreferences;
+    private boolean hapticFeedbackEnabled;
+    private boolean isMilitaryTime;
 
     private DatabaseReference mDatabase;
     private RecyclerView rvShifts;
+    private Spinner spnJobs;
 
-    private final String jobName = "Nyhof Farms";
-    private final double hourlyWage = 18.50;
-    private final double deductionPercentage = 0.2;
-    private final double deductionAmount = 15.43;
+    private String jobId;
+    private String selectedJobId;
+    private String jobName;
+    private double hourlyWage;
+    private double deductionPercentage;
+    private double deductionAmount;
     private Integer year;
     private Integer month;
     private Integer dayOfMonth;
@@ -59,10 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btnEndTime;
     private Button btnAddShift;
 
-    private TextView tvDate;
-    private TextView tvStartTime;
-    private TextView tvEndTime;
+    private EditText etJobName;
 
+    private Job job;
     private Shift shift;
 
     @Override
@@ -71,15 +85,24 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        sharedPreferences = getSharedPreferences("ChequeMate", MODE_PRIVATE);
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         EventHandler eventHandler = new EventHandler();
 
         rvShifts = findViewById(R.id.rvShifts);
-        new FirebaseDatabaseHelper().readShifts(new FirebaseDatabaseHelper.DataStatus() {
+        spnJobs = findViewById(R.id.spnJobs);
+        spnJobs.setOnItemSelectedListener(eventHandler);
+
+        new FirebaseDatabaseHelper().readJobs(new FirebaseDatabaseHelper.JobDataStatus() {
             @Override
-            public void DataIsLoaded(List<Shift> shifts, List<String> keys) {
-                new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys);
+            public void JobDataIsLoaded(List<Job> jobs, List<String> keys) {
+                //fill data in spinner
+                ArrayAdapter<Job> spinnerAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, jobs);
+                spnJobs.setAdapter(spinnerAdapter);
+                spnJobs.setSelection(spinnerAdapter.getPosition(job));//Optional to set the selected item.
             }
 
             @Override
@@ -98,10 +121,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        tvDate = findViewById(R.id.tvDate);
-        tvStartTime = findViewById(R.id.tvStartTime);
-        tvEndTime = findViewById(R.id.tvEndTime);
-
         btnSetDate = findViewById(R.id.btnSetDate);
         btnStartTime = findViewById(R.id.btnStartTime);
         btnEndTime = findViewById(R.id.btnEndTime);
@@ -110,6 +129,16 @@ public class MainActivity extends AppCompatActivity {
         btnStartTime.setOnClickListener(eventHandler);
         btnEndTime.setOnClickListener(eventHandler);
         btnAddShift.setOnClickListener(eventHandler);
+
+        etJobName = findViewById(R.id.etJobName);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        RefreshShifts();
+        hapticFeedbackEnabled = sharedPreferences.getBoolean("haptic_feedback", true);
+        isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
     }
 
     //to inflate the xml menu file
@@ -133,20 +162,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_settings:
                 Log.d("DGM", "settings menu item");
-//                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-//                startActivityForResult(i, STANDARD_REQUEST_CODE);
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(i, STANDARD_REQUEST_CODE);
                 returnVal = true;
                 break;
         }
         return returnVal;
     }
 
-    public class EventHandler implements View.OnClickListener {
+    public class EventHandler implements View.OnClickListener, Spinner.OnItemSelectedListener {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btnSetDate:
-//                    mDatabase.child("shift_entries").child("shift").setValue("Hello, Universe!");
                     ShowDatePicker();
                     break;
                 case R.id.btnStartTime:
@@ -159,16 +187,57 @@ public class MainActivity extends AppCompatActivity {
                     if (shiftIsValid()) {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount, "");
                         fireShift();
-                        Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
-                        vibrate(false);
+                        Toast.makeText(MainActivity.this, "Shift added successfully", Toast.LENGTH_SHORT).show();
+                        vibrate(hapticFeedbackEnabled, false);
                         clearInputs();
                     } else {
-                        Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
-                        vibrate(true);
+                        Toast.makeText(MainActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
+                        vibrate(hapticFeedbackEnabled, true);
                     }
                     break;
             }
         }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            Job job = (Job) spnJobs.getItemAtPosition(position);
+            selectedJobId = job.getJobId();
+            jobName = job.getJobName();
+            hourlyWage = job.getHourlyWage();
+            deductionPercentage = job.getDeductionPercentage();
+            deductionAmount = job.getDeductionAmount();
+            RefreshShifts();
+//            Toast.makeText(MainActivity.this, "Job Id: " + selectedJobId, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    }
+
+    public void RefreshShifts() {
+        new FirebaseDatabaseHelper().readShifts(selectedJobId, new FirebaseDatabaseHelper.ShiftDataStatus() {
+            @Override
+            public void ShiftDataIsLoaded(List<Shift> shifts, List<String> keys) {
+                new RecyclerView_Config().setConfig(rvShifts, MainActivity.this, shifts, keys, sharedPreferences);
+            }
+
+            @Override
+            public void DataIsInserted() {
+
+            }
+
+            @Override
+            public void DataIsUpdated() {
+
+            }
+
+            @Override
+            public void DataIsDeleted() {
+
+            }
+        });
     }
 
     public void ShowDatePicker() {
@@ -184,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.month = month + 1;
                         MainActivity.this.dayOfMonth = day;
                         MainActivity.this.dateIsSet = true;
-                        tvDate.setText((month + 1) + "/" + day + "/" + year);
+                        btnSetDate.setText((month + 1) + "/" + day + "/" + year);
                     }
                 }, year, month, dayOfMonth);
         datePickerDialog.show();
@@ -204,17 +273,43 @@ public class MainActivity extends AppCompatActivity {
                             startHour = hourOfDay;
                             startMinute = minute;
                             startTimeIsSet = true;
-                            tvStartTime.setText(hourOfDay + ":" + minute);
+                            btnStartTime.setText(getTimeString(true, isMilitaryTime));
                         } else {
                             // MAKE SURE END TIME IS GREATER THAN START TIME
                             endHour = hourOfDay;
                             endMinute = minute;
                             endTimeIsSet = true;
-                            tvEndTime.setText(hourOfDay + ":" + minute);
+                            btnEndTime.setText(getTimeString(false, isMilitaryTime));
                         }
                     }
-                }, hour, minute, false);
+                }, hour, minute, isMilitaryTime);
         timePickerDialog.show();
+    }
+
+    public String getTimeString(boolean isStartTime, boolean isMilitaryTime) {
+        int hour = startHour;
+        int minute = startMinute;
+        String symbol = "AM";
+
+        if (!isStartTime) {
+            hour = endHour;
+            minute = endMinute;
+        }
+        if (!isMilitaryTime) {
+            if (hour == 0) {
+                hour = 12;
+            } else if (hour == 12) {
+                symbol = "PM";
+            } else if (hour > 12) {
+                hour = hour - 12;
+                symbol = "PM";
+            }
+            return (minute < 10) ? String.format("%d:0%d %s", hour, minute , symbol) : String.format("%d:%d %s", hour, minute , symbol);
+        } else {
+            String militaryHour = (hour < 10) ? String.format("0%d", hour) : String.format("%d", hour);
+            String militaryMinute = (minute < 10) ? String.format("0%d", minute) : String.format("%d", minute);
+            return String.format("%s:%s", militaryHour, militaryMinute);
+        }
     }
 
     public Boolean shiftIsValid() {
@@ -226,21 +321,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fireShift() {
-        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference("shifts");
+        DatabaseReference shiftEntries = FirebaseDatabase.getInstance().getReference();
         String key = shiftEntries.push().getKey();
         if (key != null) {
-            mDatabase.child("shifts").child(key).child("jobName").setValue(jobName);
-            mDatabase.child("shifts").child(key).child("hourlyWage").setValue(hourlyWage);
-            mDatabase.child("shifts").child(key).child("year").setValue(year);
-            mDatabase.child("shifts").child(key).child("month").setValue(month);
-            mDatabase.child("shifts").child(key).child("dayOfMonth").setValue(dayOfMonth);
-            mDatabase.child("shifts").child(key).child("startHour").setValue(startHour);
-            mDatabase.child("shifts").child(key).child("startMinute").setValue(startMinute);
-            mDatabase.child("shifts").child(key).child("endHour").setValue(endHour);
-            mDatabase.child("shifts").child(key).child("endMinute").setValue(endMinute);
-            mDatabase.child("shifts").child(key).child("deductionPercentage").setValue(deductionPercentage);
-            mDatabase.child("shifts").child(key).child("deductionAmount").setValue(deductionAmount);
-            mDatabase.child("shifts").child(key).child("notes").setValue("It's a note!");
+            mDatabase.child("jobs").child(selectedJobId).child("shifts").child(key).setValue(shift);
         }
     }
 
@@ -252,31 +336,34 @@ public class MainActivity extends AppCompatActivity {
         startMinute = null;
         endHour = null;
         endMinute = null;
-        tvDate.setText("--");
-        tvStartTime.setText("--");
-        tvEndTime.setText("--");
+        btnSetDate.setText("Date");
+        btnStartTime.setText("Start Time");
+        btnEndTime.setText("End Tme");
         dateIsSet = false;
         startTimeIsSet = false;
         endTimeIsSet = false;
+        shift = null;
     }
 
-    public void vibrate(boolean isError) {
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (!isError) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+    public void vibrate(boolean isEnabled, boolean isError) {
+        if (isEnabled) {
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (!isError) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(10);
+                }
             } else {
-                //deprecated in API 26
-                vibrator.vibrate(10);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert vibrator != null;
-                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                //deprecated in API 26
-                vibrator.vibrate(100);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    assert vibrator != null;
+                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    //deprecated in API 26
+                    vibrator.vibrate(100);
+                }
             }
         }
     }

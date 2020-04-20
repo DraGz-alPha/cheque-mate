@@ -81,17 +81,16 @@ public class Shift {
         return endMinute;
     }
 
-    public String getTimeString(boolean isStartTime, boolean isAmPm) {
+    public String getTimeString(boolean isStartTime, boolean isMilitaryTime) {
         int hour = startHour;
         int minute = startMinute;
         String symbol = "AM";
-        String returnVal = "";
 
         if (!isStartTime) {
             hour = endHour;
             minute = endMinute;
         }
-        if (isAmPm) {
+        if (!isMilitaryTime) {
             if (hour == 0) {
                 hour = 12;
             } else if (hour == 12) {
@@ -102,7 +101,9 @@ public class Shift {
             }
             return (minute < 10) ? String.format("%d:0%d %s", hour, minute , symbol) : String.format("%d:%d %s", hour, minute , symbol);
         } else {
-            return String.format("%d:%d", hour, minute);
+            String militaryHour = (hour < 10) ? String.format("0%d", hour) : String.format("%d", hour);
+            String militaryMinute = (minute < 10) ? String.format("0%d", minute) : String.format("%d", minute);
+            return String.format("%s:%s", militaryHour, militaryMinute);
         }
     }
 

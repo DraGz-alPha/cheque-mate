@@ -2,6 +2,7 @@ package ca.dragz.chequemate;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -15,9 +16,13 @@ import java.time.LocalTime;
 import java.util.List;
 
 public class RecyclerView_Config {
+
     private Context mContext;
     private ShiftsAdapter mShiftsAdapter;
-    public void setConfig(RecyclerView rvShifts, Context context, List<Shift> shifts, List<String> keys) {
+    private SharedPreferences mSharedPreferences;
+
+    public void setConfig(RecyclerView rvShifts, Context context, List<Shift> shifts, List<String> keys, SharedPreferences sharedPreferences) {
+        mSharedPreferences = sharedPreferences;
         mContext = context;
         mShiftsAdapter = new ShiftsAdapter(shifts, keys);
         rvShifts.setLayoutManager(new LinearLayoutManager(context));
@@ -39,8 +44,6 @@ public class RecyclerView_Config {
             super(LayoutInflater.from(mContext).
             inflate(R.layout.shift_list_item, parent,false));
 
-            txtJobName = itemView.findViewById(R.id.txtJobName);
-            txtHourlyWage = itemView.findViewById(R.id.txtHourlyWage);
             txtStartTime = itemView.findViewById(R.id.txtStartTime);
             txtEndTime = itemView.findViewById(R.id.txtEndTime);
             txtDate = itemView.findViewById(R.id.txtDate);
@@ -49,10 +52,11 @@ public class RecyclerView_Config {
         }
         @SuppressLint({"DefaultLocale", "SetTextI18n"})
         public void bind(Shift shift, String key) {
-            txtJobName.setText(shift.getJobName());
-            txtHourlyWage.setText("$" + shift.getHourlyWage() + "0");
-            txtStartTime.setText(shift.getTimeString(true, true));
-            txtEndTime.setText(shift.getTimeString(false, true));
+
+            boolean isMilitaryTime = mSharedPreferences.getBoolean("military_time", false);
+
+            txtStartTime.setText(shift.getTimeString(true, isMilitaryTime));
+            txtEndTime.setText(shift.getTimeString(false, isMilitaryTime));
             txtDate.setText(shift.getDateString());
             txtGrossPay.setText(String.format("$%.2f", shift.getGrossPay()));
             txtNetPay.setText(String.format("$%.2f", shift.getNetPay()));
