@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private String jobId;
     private String selectedJobId;
-    private String jobName = "Nyhof Farms";
-    private final double hourlyWage = 18.50;
+    private String jobName;
+    private double hourlyWage;
     private final double deductionPercentage = 0.2;
     private final double deductionAmount = 15.43;
     private Integer year;
@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStartTime;
     private Button btnEndTime;
     private Button btnAddShift;
-    private Button btnAddJob;
 
     private EditText etJobName;
 
@@ -124,12 +123,10 @@ public class MainActivity extends AppCompatActivity {
         btnStartTime = findViewById(R.id.btnStartTime);
         btnEndTime = findViewById(R.id.btnEndTime);
         btnAddShift = findViewById(R.id.btnAddShift);
-        btnAddJob = findViewById(R.id.btnAddJob);
         btnSetDate.setOnClickListener(eventHandler);
         btnStartTime.setOnClickListener(eventHandler);
         btnEndTime.setOnClickListener(eventHandler);
         btnAddShift.setOnClickListener(eventHandler);
-        btnAddJob.setOnClickListener(eventHandler);
 
         etJobName = findViewById(R.id.etJobName);
     }
@@ -174,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btnSetDate:
-//                    mDatabase.child("shift_entries").child("shift").setValue("Hello, Universe!");
                     ShowDatePicker();
                     break;
                 case R.id.btnStartTime:
@@ -187,22 +183,11 @@ public class MainActivity extends AppCompatActivity {
                     if (shiftIsValid()) {
                         shift = new Shift(jobName, hourlyWage, year, month, dayOfMonth, startHour, startMinute, endHour, endMinute, deductionPercentage, deductionAmount, "");
                         fireShift();
-                        Toast.makeText(MainActivity.this, "Shift added successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Shift added successfully", Toast.LENGTH_SHORT).show();
                         vibrate(false);
                         clearInputs();
                     } else {
-                        Toast.makeText(MainActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
-                        vibrate(true);
-                    }
-                    break;
-                case R.id.btnAddJob:
-                    if (etJobName.getText().toString().trim().length() > 0) {
-                        job = new Job(etJobName.getText().toString().trim(), 18);
-                        fireJob();
-                        etJobName.setText(""); // Reset EditText
-                        vibrate(false);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Job name field can't be empty!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
                         vibrate(true);
                     }
                     break;
@@ -214,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
             Job job = (Job) spnJobs.getItemAtPosition(position);
             selectedJobId = job.getJobId();
             jobName = job.getJobName();
+            hourlyWage = job.getHourlyWage();
             RefreshShifts();
 //            Toast.makeText(MainActivity.this, "Job Id: " + selectedJobId, Toast.LENGTH_LONG).show();
         }
