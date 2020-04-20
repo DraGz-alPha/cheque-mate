@@ -85,7 +85,6 @@ public class Shift {
         int hour = startHour;
         int minute = startMinute;
         String symbol = "AM";
-        String returnVal = "";
 
         if (!isStartTime) {
             hour = endHour;

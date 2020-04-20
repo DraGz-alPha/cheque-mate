@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private String selectedJobId;
     private String jobName;
     private double hourlyWage;
-    private final double deductionPercentage = 0.2;
-    private final double deductionAmount = 15.43;
+    private double deductionPercentage;
+    private double deductionAmount;
     private Integer year;
     private Integer month;
     private Integer dayOfMonth;
@@ -200,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
             selectedJobId = job.getJobId();
             jobName = job.getJobName();
             hourlyWage = job.getHourlyWage();
+            deductionPercentage = job.getDeductionPercentage();
+            deductionAmount = job.getDeductionAmount();
             RefreshShifts();
 //            Toast.makeText(MainActivity.this, "Job Id: " + selectedJobId, Toast.LENGTH_LONG).show();
         }
