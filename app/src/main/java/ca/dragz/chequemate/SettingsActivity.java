@@ -63,6 +63,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Button btnClearJobInputs;
 
     private String selectedJobId;
+    private String selectedJobName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,9 +181,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private boolean jobIsValid() {
         if (etJobName.getText().toString().trim().length() > 0 &&
-            etHourlyWage.getText().toString().trim().length() > 0 &&
-            etDeductionPercentage.getText().toString().trim().length() > 0 &&
-            etDeductionAmount.getText().toString().trim().length() > 0) {
+                etHourlyWage.getText().toString().trim().length() > 0 &&
+                etDeductionPercentage.getText().toString().trim().length() > 0 &&
+                etDeductionAmount.getText().toString().trim().length() > 0) {
 
             return true;
         } else {
@@ -238,19 +239,25 @@ public class SettingsActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btnAddJob:
-                    if (jobIsValid()) {
-                        String jobName = etJobName.getText().toString().trim();
-                        double hourlyWage = Double.parseDouble(etHourlyWage.getText().toString().trim());
-                        double deductionPercentage = Double.parseDouble(etDeductionPercentage.getText().toString().trim());
-                        double deductionAmount = Double.parseDouble(etDeductionAmount.getText().toString().trim());
-                        job = new Job(jobName, hourlyWage, deductionAmount, deductionPercentage);
-                        fireJob();
-                        ClearJobInputs();
-                        Toast.makeText(SettingsActivity.this, "'" + jobName + "' has been created", Toast.LENGTH_SHORT).show();
-                        vibrate(hapticFeedbackEnabled, false);
+                    if (!etJobName.getText().toString().trim().equals(selectedJobName)) {
+                        if (jobIsValid()) {
+                            String jobName = etJobName.getText().toString().trim();
+                            double hourlyWage = Double.parseDouble(etHourlyWage.getText().toString().trim());
+                            double deductionPercentage = Double.parseDouble(etDeductionPercentage.getText().toString().trim());
+                            double deductionAmount = Double.parseDouble(etDeductionAmount.getText().toString().trim());
+                            job = new Job(jobName, hourlyWage, deductionAmount, deductionPercentage);
+                            fireJob();
+                            ClearJobInputs();
+                            Toast.makeText(SettingsActivity.this, "'" + jobName + "' has been created", Toast.LENGTH_SHORT).show();
+                            vibrate(hapticFeedbackEnabled, false);
+                        } else {
+                            Toast.makeText(SettingsActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
+                            vibrate(hapticFeedbackEnabled, true);
+                        }
                     } else {
-                        Toast.makeText(SettingsActivity.this, "Missing required fields", Toast.LENGTH_SHORT).show();
-                        vibrate(hapticFeedbackEnabled, true);
+                        Toast.makeText(SettingsActivity.this,
+                                "Job already exists. Please choose a different name",
+                                Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.btnUpdateJob:
@@ -314,6 +321,7 @@ public class SettingsActivity extends AppCompatActivity {
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             Job job = (Job) spnSettingsJobs.getItemAtPosition(position);
             selectedJobId = job.getJobId();
+            selectedJobName = job.getJobName();
             UpdateJobEditTexts(job);
         }
 
