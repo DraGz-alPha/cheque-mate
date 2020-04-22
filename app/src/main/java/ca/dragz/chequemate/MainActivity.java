@@ -149,17 +149,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    //to handle events
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         //return super.onOptionsItemSelected(item);
         boolean returnVal = false;
 
         switch (item.getItemId()) {
-            case R.id.action_refresh:
-                Log.d("DGM", "refresh menu item");
-                returnVal = true;
-                break;
             case R.id.action_settings:
                 Log.d("DGM", "settings menu item");
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
