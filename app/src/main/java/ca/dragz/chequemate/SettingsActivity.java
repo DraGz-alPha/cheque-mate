@@ -4,14 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private final int STANDARD_REQUEST_CODE = 123;
+    Toolbar toolbar;
 
     private SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -61,6 +68,12 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        toolbar = findViewById(R.id.toolbarSettings);
+        toolbar.setTitle("Settings");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         sharedPreferences = getSharedPreferences("ChequeMate", MODE_PRIVATE);
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -119,6 +132,18 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        //return super.onOptionsItemSelected(item);
+        boolean returnVal = false;
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void InitializeSettings() {
         boolean isMilitaryTime = sharedPreferences.getBoolean("military_time", false);
         boolean isHapticFeedback = sharedPreferences.getBoolean("haptic_feedback", true);
@@ -143,7 +168,7 @@ public class SettingsActivity extends AppCompatActivity {
     private void UpdateJobEditTexts(Job job) {
         etJobName.setText(job.getJobName());
         etHourlyWage.setText("" + job.getHourlyWage());
-        etDeductionPercentage.setText("" + job.getDeductionPercentage());
+        etDeductionPercentage.setText("" + job.getDeductionPercentage() * 100);
         etDeductionAmount.setText("" + job.getDeductionAmount());
     }
 
