@@ -3,12 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_refresh"
-        android:icon="@android:drawable/ic_menu_rotate"
-        android:title="refresh"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="Settings"
